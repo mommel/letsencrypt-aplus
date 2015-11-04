@@ -1,5 +1,9 @@
 ##Just a small script to get an updatable version of an a+ apache ssl conf
 
+### What to do
+Just put the sh file on your server and run it
+./ssl2aplus.sh
+
 ### What you need
 apache2.4
 openssl < 1.0.2d
