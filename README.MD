@@ -1,5 +1,7 @@
 ##Just a small script to get an updatable version of an a+ apache ssl conf
 
+![Alt text](https://raw.githubusercontent.com/mommel/letsencrypt-aplus/master/aplussign.png)
+
 ### What to do
 Just put the sh file on your server and run it
 ./ssl2aplus.sh
