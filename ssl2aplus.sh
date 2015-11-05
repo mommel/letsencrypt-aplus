@@ -148,7 +148,7 @@ generateNginxVhost() {
     echo -e ""
     echo -e "## NEXT LINE IS REPLACED WITH THE HARDENED VERSION"
     echo -e "#        ssl_certificate /etc/letsencrypt/live/$URL/fullchain.pem;"
-    echo -e "        ssl_certificate /etc/letsencrypt/archive/$URL/fullchain_dhparams_4096.pem"
+    echo -e "        ssl_certificate /etc/letsencrypt/archive/$URL/fullchain_dhparams_4096.pem;"
     echo -e "        ssl_certificate_key /etc/letsencrypt/live/$URL/privkey.pem;"
     echo -e "        ssl_session_timeout 5m;"
     echo -e "        ssl_stapling on;"
