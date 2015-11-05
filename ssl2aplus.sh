@@ -119,7 +119,7 @@ generateApacheVhost() {
 }
 
 generateNginxVhost() {
-	echo -e "server {
+	echo -e "server {"
     echo -e "    listen 80;"
     echo -e "#    listen [::]:80 ipv6only=on;"
     echo -e ""
@@ -129,11 +129,11 @@ generateNginxVhost() {
     echo -e "    server_name $CLEANURL www.$CLEANURL;"
     echo -e ""
     echo -e "    return 301 https://$CLEANURL/$request_uri;"
-    echo -e "}""
+    echo -e "}"
     echo -e ""
     echo -e "# HTTPS server"
     echo -e ""
-    echo -e "erver {""
+    echo -e "server {"
     echo -e "        listen 443;"
     echo -e "        server_name $CLEANURL www.$CLEANURL;"
     echo -e ""
@@ -141,7 +141,7 @@ generateNginxVhost() {
     echo -e "        index index.html index.htm;"
     echo -e ""
     echo -e "        ssl on;"
-    echo -e "        ssl_ciphers "HIGH:!aNULL:!MD5:!3DES:!CAMELLIA:!AES128";"
+    echo -e "        ssl_ciphers \"HIGH:!aNULL:!MD5:!3DES:!CAMELLIA:!AES128\";"
     echo -e "        ssl_prefer_server_ciphers on;"
     echo -e "        ssl_protocols TLSv1.2;"
     echo -e ""
@@ -154,15 +154,15 @@ generateNginxVhost() {
     echo -e "## TO REFACTOR FROM APACHE"
     echo -e "#       SSLUseStapling on"
     echo -e "#       Header edit Set-Cookie ^(.*)$ ;HttpOnly;Secure"
-    echo -e "#       Header always set Public-Key-Pins "pin-sha256=\\\"$CHAINFINGERPRINT\\\"; pin-sha256=\\\"$PRIVFINGERPRINT\\\"; max-age=31536000; includeSubDomains""
+    echo -e "#       Header always set Public-Key-Pins \"pin-sha256=\\\"$CHAINFINGERPRINT\\\"; pin-sha256=\\\"$PRIVFINGERPRINT\\\"; max-age=31536000; includeSubDomains\""
     echo -e "#       Header always set X-Frame-Options SAMEORIGIN"
-    echo -e "#       Header always set Strict-Transport-Security "max-age=31536000; includeSubdomains; preload""
+    echo -e "#       Header always set Strict-Transport-Security \"max-age=31536000; includeSubdomains; preload\""
     echo -e "#       Header always set X-Content-Type-Options nosniff"
     echo -e ""
-    echo -e "        location / {""
+    echo -e "        location / {"
     echo -e "          try_files $uri $uri/ =404;"
-    echo -e "        }""
-    echo -e "}""
+    echo -e "        }"
+    echo -e "}"
 }
 
 
