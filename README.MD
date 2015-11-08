@@ -22,3 +22,6 @@ https://globalsign.ssllabs.com/analyze.html
 
 ####Like shown in this tutorial
 https://community.letsencrypt.org/t/howto-a-with-all-100-s-on-ssl-labs-test-using-apache2-4-read-warnings/2436
+
+
+####Just for experimental usage, if you want to use it in prod systems verify all settings for yourself
