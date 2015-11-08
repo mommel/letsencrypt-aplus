@@ -22,8 +22,8 @@ Just put the sh file on your server and run it
 * create a certificate with those dh params (for Apache with openssl < 1.0.2d
 * create a fingerprints for public and private key
 * write an example page conf which you can use
--
 
+-
 ### Where you can test the conf
 https://globalsign.ssllabs.com/analyze.html
 
