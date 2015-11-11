@@ -8,7 +8,7 @@ Just put the sh file on your server and run it
 
 -
 ### Download
-[ssl2aplus.sh](https://raw.githubusercontent.com/mommel/letsencrypt-aplus/master/ssl2aplus.sh "ssl2aplus.sh")
+[ssl2aplus.sh](https://github.com/mommel/letsencrypt-aplus/releases/"ssl2aplus.sh")
 
 -
 ### What you need
