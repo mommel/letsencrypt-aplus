@@ -1,7 +1,6 @@
 #!/bin/bash
 URLNO=$URLNO-1
 FOLDER="/etc/letsencrypt/live/"
-DHFILE="/etc/ssl/private/dhparams_4096.pem"
 VHOSTFOLDER="/var/www/vhosts"
 STARTFOLDER=$( pwd )
 cd $FOLDER
@@ -43,6 +42,7 @@ showTree() {
     urlArray[ $i ]="$line"
     (( i++ )) 
   done < <(ls -d */ | cat)
+  urlArray[ $i ]="Renew all"
   FileCount=$i
   i=0
   for filename in ${urlArray[*]}
@@ -69,6 +69,49 @@ showTree() {
     "") URLNO=$cur;;
     *) showTree $cur ;; 
   esac
+}
+
+selectDH() {
+	clear
+	echo -e "Please select the size of your Diffie Hellman crypto"
+	echo -e "(1) 1024 (2) 2048 (3) 4096 [default]"
+	echo -e "$DHFILE1K"
+	read -sn1 ANSWER;
+  	case $ANSWER in
+  		1) getDH "/etc/ssl/private/dhparams_1024.pem";;
+		2) getDH "/etc/ssl/private/dhparams_2048.pem";;
+		3) getDH "/etc/ssl/private/dhparams_4096.pem";;
+		"") getDH "/etc/ssl/private/dhparams_4096.pem";;
+		*) selectDH;;
+	esac
+}
+
+getDH() {
+	DHFILE=$1
+	echo -e "DH File $DHFILE"
+	if [ -e "$DHFILE" ]; then
+	  echo "DH parameters file exists will go on"
+	else
+	  echo -e "Generating DH parameters - This will last some minutes"
+	  read -p "Press any key to go on..."
+	  openssl dhparam -out "$DHFILE" 4096
+	fi
+}
+
+generateFullchainDHFile() {
+	cat "/etc/letsencrypt/live/$URL/fullchain.pem" "$DHFILE" > "/etc/letsencrypt/archive/$URL/fullchain_dhparams_4096.pem"
+}
+
+generateChainFingerprint() {
+	gCHAINFINGERPRINT=$(openssl x509 -noout -in "/etc/letsencrypt/live/$URL/chain.pem" -pubkey | openssl asn1parse -noout -inform pem -out /tmp/fingerprint.key)
+	gCHAINFINGERPRINT=$(openssl dgst -sha256 -binary /tmp/fingerprint.key | openssl enc -base64)
+	echo -e "$gCHAINFINGERPRINT"
+}
+
+generatePrivFingerprint() {
+	gPRIVFINGERPRINT=$(openssl x509 -noout -in "/etc/letsencrypt/live/$URL/privkey.pem" -pubkey | openssl asn1parse -noout -inform pem -out /tmp/fingerprint.key)
+	gPRIVFINGERPRINT=$(openssl dgst -sha256 -binary /tmp/fingerprint.key | openssl enc -base64)
+	echo -e "$gPRIVFINGERPRINT"
 }
 
 generateApacheVhost() {
@@ -168,15 +211,8 @@ generateNginxVhost() {
     echo -e "}"
 }
 
-
-if [ -e "$DHFILE" ]; then
-  echo "DH parameters file exists will go on"
-else
-  echo -e "Generating DH parameters - This will last some minutes"
-  read -p "Press any key to go on..."
-  openssl dhparam -out "$DHFILE" 4096
-fi
-
+clear
+selectDH
 showTree 1
 cd $STARTFOLDER
 URLNO=$URLNO-1
@@ -186,12 +222,9 @@ URL=${URL//\//$replace}
 CLEANURL=${URL//www\./$replace}
 echo -e "YOU WANT TO HARDEN $URL IF NOT HIT CTRL-C"
 read -p "Press any key to go on..."
-cat "/etc/letsencrypt/live/$URL/fullchain.pem" "$DHFILE" > "/etc/letsencrypt/archive/$URL/fullchain_dhparams_4096.pem"
-CHAINFINGERPRINT=$(openssl x509 -noout -in "/etc/letsencrypt/live/$URL/chain.pem" -pubkey | openssl asn1parse -noout -inform pem -out /tmp/fingerprint.key)
-CHAINFINGERPRINT=$(openssl dgst -sha256 -binary /tmp/fingerprint.key | openssl enc -base64)
+CHAINFINGERPRINT=$( generateChainFingerprint )
 echo -e "CHAINFINGERPRINT = $CHAINFINGERPRINT"
-PRIVFINGERPRINT=$(openssl x509 -noout -in "/etc/letsencrypt/live/$URL/privkey.pem" -pubkey | openssl asn1parse -noout -inform pem -out /tmp/fingerprint.key)
-PRIVFINGERPRINT=$(openssl dgst -sha256 -binary /tmp/fingerprint.key | openssl enc -base64)
+PRIVFINGERPRINT=$( generatePrivFingerprint )
 echo -e "PRIVFINGERPRINT = $PRIVFINGERPRINT"
 echo -e " "
 echo -e "This would be an example for your new A+ SSL Server"
