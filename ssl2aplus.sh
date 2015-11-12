@@ -78,23 +78,24 @@ selectDH() {
 	echo -e "$DHFILE1K"
 	read -sn1 ANSWER;
   	case $ANSWER in
-  		1) getDH "/etc/ssl/private/dhparams_1024.pem";;
-		2) getDH "/etc/ssl/private/dhparams_2048.pem";;
-		3) getDH "/etc/ssl/private/dhparams_4096.pem";;
-		"") getDH "/etc/ssl/private/dhparams_4096.pem";;
+  		1) getDH "/etc/ssl/private/dhparams_1024.pem" "1024";;
+		2) getDH "/etc/ssl/private/dhparams_2048.pem" "2048";;
+		3) getDH "/etc/ssl/private/dhparams_4096.pem" "4096";;
+		"") getDH "/etc/ssl/private/dhparams_4096.pem" "4096";;
 		*) selectDH;;
 	esac
 }
 
 getDH() {
 	DHFILE=$1
+	DHSIZE=$2
 	echo -e "DH File $DHFILE"
 	if [ -e "$DHFILE" ]; then
 	  echo "DH parameters file exists will go on"
 	else
 	  echo -e "Generating DH parameters - This will last some minutes"
 	  read -p "Press any key to go on..."
-	  openssl dhparam -out "$DHFILE" 4096
+	  openssl dhparam -out "$DHFILE" "$DHSIZE"
 	fi
 }
 
