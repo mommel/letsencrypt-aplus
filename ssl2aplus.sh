@@ -3,6 +3,7 @@ URLNO=$URLNO-1
 FOLDER="/etc/letsencrypt/live/"
 VHOSTFOLDER="/var/www/vhosts"
 STARTFOLDER=$( pwd )
+TARGET=""
 cd $FOLDER
 
 move() {
@@ -97,6 +98,18 @@ getDH() {
 	  read -p "Press any key to go on..."
 	  openssl dhparam -out "$DHFILE" "$DHSIZE"
 	fi
+}
+
+selectTarget() {
+	clear
+	echo -e "Please select your System "
+	echo -e "(1) Apache with openssl < 1.0.2d (2) NGINX"
+	read -sn1 ANSWER;
+  	case $ANSWER in
+  		1) TARGET="A1";;
+		2) TARGET="N";;
+		*) selectTarget;;
+	esac
 }
 
 generateFullchainDHFile() {
@@ -214,6 +227,7 @@ generateNginxVhost() {
 
 clear
 selectDH
+selectTarget
 showTree 1
 cd $STARTFOLDER
 URLNO=$URLNO-1
@@ -230,11 +244,21 @@ echo -e "PRIVFINGERPRINT = $PRIVFINGERPRINT"
 echo -e " "
 echo -e "This would be an example for your new A+ SSL Server"
 echo -e " "
-APACHE=$( generateApacheVhost )
-NGINX=$( generateNginxVhost )
-echo "########################"
-echo -e "$APACHE"
-echo "########################"
-echo "$APACHE" > $STARTFOLDER/APACHE.$CLEANURL.conf
-echo "$NGINX" > $STARTFOLDER/NGINX.$CLEANURL.conf
+
+if [ TARGET = "A1" ]
+then
+	APACHE=$( generateApacheVhost )
+	echo "########################"
+	echo -e "$APACHE"
+	echo "########################"
+	echo "$APACHE" > $STARTFOLDER/APACHE.$CLEANURL.conf
+fi
+if [ TARGET = "N" ]
+then
+	NGINX=$( generateNginxVhost )
+	echo "########################"
+	echo -e "$NGINX"
+	echo "########################"
+	echo "$NGINX" > $STARTFOLDER/NGINX.$CLEANURL.conf
+fi
 echo -e "You can find this output in APACHE/NGINX.$CLEANURL.conf"
