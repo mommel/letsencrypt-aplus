@@ -103,12 +103,13 @@ getDH() {
 selectTarget() {
 	clear
 	echo -e "Please select your System "
-	echo -e "(1) Apache with openssl < 1.0.2d (2) NGINX"
+	echo -e "(1) Apache with openssl < 1.0.2d (2) Apache with openssl >= 1.0.2d (3) NGINX"
 	read -sn1 ANSWER;
   	case $ANSWER in
   		1) TARGET="A1";;
-		2) TARGET="N";;
-		*) selectTarget;;
+      2) TARGET="A2";;
+		  3) TARGET="N";;
+		  *) selectTarget;;
 	esac
 }
 
@@ -174,6 +175,55 @@ generateApacheVhost() {
 	echo -e "    CustomLog \${APACHE_LOG_DIR}/ssl_$CLEANURL.access.log combined"
 	echo -e "</VirtualHost>"
 }
+
+
+generateApacheVhost102() {
+  echo -e "<VirtualHost *:80>"
+  echo -e "  ServerName $CLEANURL"
+  echo -e "  ServerAlias www.$CLEANURL"
+  echo -e "  <Location />"
+  echo -e "    Redirect 301 / https://www.$CLEANURL"
+  echo -e "  </Location>"
+  echo -e "</VirtualHost>"
+  echo -e ""
+  echo -e "<VirtualHost *:443>"
+  echo -e "  ServerAdmin webmaster@localhost"
+  echo -e "  ServerName $CLEANURL"
+  echo -e "  ServerAlias www.$CLEANURL"
+  echo -e ""
+  echo -e "    SSLEngine on"
+  echo -e "    SSLCompression off"
+  echo -e "    SSLCipherSuite \"HIGH:!aNULL:!MD5:!3DES:!CAMELLIA:!AES128\""
+  echo -e "    SSLHonorCipherOrder on"
+  echo -e "    SSLProtocol TLSv1.2"
+  echo -e "    SSLUseStapling on"
+  echo -e "    Header edit Set-Cookie ^(.*)$ $1;HttpOnly;Secure"
+  echo -e "    Header always set Public-Key-Pins \"pin-sha256=\\\"$CHAINFINGERPRINT\\\"; pin-sha256=\\\"$PRIVFINGERPRINT\\\"; max-age=31536000; includeSubDomains\""
+  echo -e "    Header always set X-Frame-Options SAMEORIGIN"
+  echo -e "    Header always set Strict-Transport-Security \"max-age=31536000; includeSubdomains; preload\""
+  echo -e "    Header always set X-Content-Type-Options nosniff"
+  echo -e ""
+  echo -e "## NEXT LINE IS REPLACED WITH THE HARDENED VERSION"
+  echo -e "    SSLCertificateFile /etc/letsencrypt/live/$URL/fullchain.pem"
+  echo -e "    SSLOpenSSLConfCmd DHParameters $DHFILE"
+  echo -e "    SSLCertificateKeyFile /etc/letsencrypt/live/$URL/privkey.pem"
+  echo -e "    SSLCACertificateFile /etc/letsencrypt/live/$URL/lets-encrypt-x1-cross-signed.pem"
+  echo -e ""
+  echo -e "    DocumentRoot \"$VHOSTFOLDER/$CLEANURL/httpdocs/\""
+  echo -e "    <Directory \"$VHOSTFOLDER/$CLEANURL/httpdocs/\">"
+  echo -e "      DirectoryIndex index.php index.html"
+  echo -e "      Options Indexes FollowSymLinks MultiViews"
+  echo -e "      AllowOverride All"
+  echo -e "      Order allow,deny"
+  echo -e "      allow from all"
+  echo -e "    </Directory>"
+  echo -e ""
+  echo -e "    ErrorLog \${APACHE_LOG_DIR}/ssl_$CLEANURL.error.log"
+  echo -e "    LogLevel warn"
+  echo -e "    CustomLog \${APACHE_LOG_DIR}/ssl_$CLEANURL.access.log combined"
+  echo -e "</VirtualHost>"
+}
+
 
 generateNginxVhost() {
 	echo -e "server {"
@@ -252,6 +302,14 @@ then
 	echo -e "$APACHE"
 	echo "########################"
 	echo "$APACHE" > $STARTFOLDER/APACHE.$CLEANURL.conf
+fi
+if [ TARGET = "A2" ]
+then
+  APACHE=$( generateApacheVhost102 )
+  echo "########################"
+  echo -e "$APACHE"
+  echo "########################"
+  echo "$APACHE" > $STARTFOLDER/APACHE.$CLEANURL.conf
 fi
 if [ TARGET = "N" ]
 then
