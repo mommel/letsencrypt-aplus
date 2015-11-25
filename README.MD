@@ -13,7 +13,7 @@ Just put the sh file on your server and run it
 -
 ### What you need
 * apache2.4 or Nginx
-* openssl < 1.0.2d (Apache)
+* openssl
 * certificate(s) from letsencrypt.org
 
 -
@@ -22,6 +22,7 @@ Just put the sh file on your server and run it
 * create a certificate with those dh params (for Apache with openssl < 1.0.2d
 * create a fingerprints for public and private key
 * write an example page conf which you can use
+* create example configurations for nginx or apache2
 
 -
 ### Where you can test the conf
