@@ -3,6 +3,8 @@ URLNO=$URLNO-1
 FOLDER="/etc/letsencrypt/live/"
 VHOSTFOLDER="/var/www/vhosts"
 STARTFOLDER=$( pwd )
+LEFOLDER="${STARTFOLDER}/letsencrypt"
+LEGHLINK="https://github.com/letsencrypt/letsencrypt.git"
 TARGET=""
 cd $FOLDER
 
@@ -176,7 +178,6 @@ generateApacheVhost() {
 	echo -e "</VirtualHost>"
 }
 
-
 generateApacheVhost102() {
   echo -e "<VirtualHost *:80>"
   echo -e "  ServerName $CLEANURL"
@@ -223,7 +224,6 @@ generateApacheVhost102() {
   echo -e "    CustomLog \${APACHE_LOG_DIR}/ssl_$CLEANURL.access.log combined"
   echo -e "</VirtualHost>"
 }
-
 
 generateNginxVhost() {
 	echo -e "server {"
@@ -275,7 +275,24 @@ generateNginxVhost() {
     echo -e "}"
 }
 
+checkLetsEncrypt() {
+    if [ ! -d "$LEFOLDER" ]; then
+      mkdir -p $LEFOLDER
+      if [ ! -d "$LEFOLDER" ]; then
+        echo "ERROR: No permission to create folder for letsencrypt"
+        exit 3
+      fi  
+    fi
+    cd $LEFOLDER
+    if git rev-parse --git-dir > /dev/null 2>&1; then
+      git pull
+    else
+        git clone $LEGHLINK "$LEFOLDER"
+    fi
+}
+
 clear
+checkLetsEncrypt
 selectDH
 selectTarget
 showTree 1
@@ -320,3 +337,4 @@ then
 	echo "$NGINX" > $STARTFOLDER/NGINX.$CLEANURL.conf
 fi
 echo -e "You can find this output in APACHE/NGINX.$CLEANURL.conf"
+exit 0
