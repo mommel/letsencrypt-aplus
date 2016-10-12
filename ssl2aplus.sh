@@ -43,7 +43,7 @@ showTree() {
   while read line
   do
     urlArray[ $i ]="$line"
-    (( i++ )) 
+    (( i++ ))
   done < <(ls -d */ | cat)
   urlArray[ $i ]="Renew all"
   FileCount=$i
@@ -70,7 +70,7 @@ showTree() {
     w) move $cur "UP" $FileCount;;
     s) move $cur "DOWN" $FileCount;;
     "") URLNO=$cur;;
-    *) showTree $cur ;; 
+    *) showTree $cur ;;
   esac
 }
 
@@ -242,7 +242,7 @@ generateNginxVhost() {
     echo -e "# HTTPS server"
     echo -e ""
     echo -e "server {"
-    echo -e "        listen 443;"
+    echo -e "        listen 443 ssl spdy;"
     echo -e "        server_name $CLEANURL"
     echo -e "        server_name www.$CLEANURL;"
     echo -e ""
@@ -253,14 +253,16 @@ generateNginxVhost() {
     echo -e "        ssl_ciphers \"ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:AES:CAMELLIA:DES-CBC3-SHA:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!MD5:!PSK:!aECDH:!EDH-DSS-DES-CBC3-SHA:!EDH-RSA-DES-CBC3-SHA:!KRB5-DES-CBC3-SHA\";"
     echo -e "        ssl_prefer_server_ciphers on;"
     echo -e "        ssl_protocols TLSv1.2;"
-    echo -e "        ssl_session_cache shared:SSL:10m;"
+    echo -e "        ssl_session_cache off;"
     echo -e ""
     echo -e "## NEXT LINE IS REPLACED WITH THE HARDENED VERSION"
     echo -e "        ssl_certificate /etc/letsencrypt/live/$URL/fullchain.pem;"
     echo -e "        ssl_dhpharam $DHFILE";
+    echo -e "        ssl_ecdh_curve secp384r1";
     echo -e "        ssl_certificate_key /etc/letsencrypt/live/$URL/privkey.pem;"
     echo -e "        ssl_session_timeout 5m;"
     echo -e "        ssl_stapling on;"
+    echo -e "        ssl_stapling_verify on;"
     echo -e ""
     echo -e "        add_header Set-Cookie \"HttpOnly\";"
     echo -e "        add_header Set-Cookie \"Secure\";"
@@ -281,7 +283,7 @@ checkLetsEncrypt() {
       if [ ! -d "$LEFOLDER" ]; then
         echo "ERROR: No permission to create folder for letsencrypt"
         exit 3
-      fi  
+      fi
     fi
     cd $LEFOLDER
     if git rev-parse --git-dir > /dev/null 2>&1; then
