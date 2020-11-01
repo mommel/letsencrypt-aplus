@@ -1,3 +1,5 @@
+#Don't use - Unmaintained - Totally outdated 
+
 ##Just a small script to get an updatable version of an a+ apache ssl conf
 
 ![Alt text](https://raw.githubusercontent.com/mommel/letsencrypt-aplus/master/aplussign.png)
